@@ -1,0 +1,82 @@
+<% layout('boilerplate') -%>
+
+<link href="/styles/matrix.css" rel="stylesheet">
+
+<script>
+//var rows = JSON.parse('<%= JSON.stringify(rows)%>');
+</script>
+
+<table cellpadding="0" cellspacing="0" class="c12 draggable">
+	<thead>
+		<td>Key</td>
+		<td>Spike LDH</td>
+		<td>Spike Bili</td>
+		<td>Spike Hb</td>
+		<td>Actual LDH Ukat</td>
+		<td>Actual LDH</td>
+		<td>Actual Bili</td>
+		<td>Actual Hb Index</td>
+		<td>Actual Hb</td>
+		<td>00:10</td>
+		<td>00:20</td>
+		<td>00:20</td>
+		<td>00:30</td>
+		<td>00:40</td>
+		<td>00:50</td>
+		<td>01:00</td>
+		<td>01:10</td>
+		<td>01:20</td>
+		<td>01:30</td>
+		<td>01:40</td>
+		<td>01:50</td>
+		<td>02:00</td>
+		<td>02:10</td>
+		<td>02:20</td>
+		<td>02:30</td>
+		<td>02:40</td>
+		<td>02:50</td>
+		<td>03:00</td>
+		<td>03:10</td>
+		<td>03:20</td>
+		<td>03:30</td>
+		<td>03:40</td>
+		<td>03:50</td>
+		<td>04:00</td>
+		<td>04:10</td>
+		<td>04:20</td>
+	</thead>
+<%
+for(var i in rows) { 
+	var row = rows[i];
+%>
+	<tr>
+		<td class='labels'><%= row.key %></td>
+		<td class='labels'><%= row.spiking.ldh %></td>
+		<td class='labels'><%= row.spiking.bili %></td>
+		<td class='labels'><%= row.spiking.hb %></td>
+		<td class='labels'><%= row.actual['ldh-ukat'] %></td>
+		<td class='labels'><%= row.actual.ldh %></td>
+		<td class='labels'><%= row.actual.bili %></td>
+		<td class='labels'><%= row.actual['hb-index'] %></td>
+		<td class='labels'><%= row.actual.hb %></td>
+
+		<!--<td><img height="40" width="40" src="images/s/left-<%= i %>/left.jpg"></td>-->
+		<%
+		for(var j in row.data) {
+			var color = [0,0,0,0];
+
+			if(row.data[j].colors.length) {
+				color = row.data[j].colors[0];
+				color.push(255);
+			}
+			
+		%>
+			<td class='color' style='background: rgba(<%= color[0] %>, <%= color[1] %>, <%= color[2] %>, <%= color[3] %>);'><img src="<%= row.data[j].path %>"></td>		
+		<%
+		}
+		%>
+	</tr>
+<%
+}
+%>
+</table>

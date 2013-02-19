@@ -1,0 +1,63 @@
+<% layout('boilerplate') -%>
+
+<link href="/styles/crop.css" rel="stylesheet">
+
+<script src='/node_modules/onecolor/one-color-all.js'></script>
+<script src="/js/crop.js"></script>
+<script src="/js/jform.js"></script>
+
+<script>
+var images = [<%
+	for(var i in images) { 
+		var src = images[i];
+
+		if (i === images.length - 1) {%>
+'<%= src %>'<% 
+		} else { 
+%>
+'<%= src %>',<%	}
+	}
+%>
+];
+</script>
+
+<ol>
+<%
+	for(var i in images) {
+		var src = images[i];
+%>
+	<li><img src='<%= path %>/<%= src %>'></li>
+<%
+	}
+%>
+</ol>
+
+<br><br>
+<br><br>
+<ol id='cuts'>
+</ol>
+<div class='clear'></div>
+<br><br>
+<canvas id='canvas'></canvas>
+<br><br>
+<p>Session information:</p>
+<br><br>
+<label>S key:</label><input type="text" name="key" id='key' value='key'>
+<br><br>
+<h2>Spike levels</h2>
+<br><br>
+<label>LDH:</label><input type="text" name="" id='spikeLdh'>
+<label>Bili:</label><input type="text" name="" id='spikeBili'>
+<label>Hb:</label><input type="text" name="" id='spikeHb'>
+<br><br>
+<h2>Actual levels</h2>
+<br><br>
+<label>LDH Ukat:</label><input type="text" name="" id='actualLdhUkat'>
+<label>LDH:</label><input type="text" name="" id='actualLdh'>
+<label>Bili:</label><input type="text" name="" id='actualBili'>
+<label>Hb Index:</label><input type="text" name="" id='actualHbIndex'>
+<label>Hb:</label><input type="text" name="" id='actualHb'>
+<br><br>
+<input type="submit" value='Save Session' onclick='save()'>
+<br><br>
+<div id='tip'></div>

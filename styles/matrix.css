@@ -1,0 +1,61 @@
+td {
+	border: solid lightgray 1px;
+	padding: 5px 3px;
+}
+.numthree {
+	background-color: #ADCDD1;
+}
+.numsix {
+	background-color: #9FC5B7;
+}
+.numnine {
+	background-color: #CFC8D1;
+}
+tr {
+	background: whitesmoke;
+}
+.num {
+	border: none;
+}
+#tip {
+	position: absolute;
+	width: 500px;
+	display: none;
+}
+li {
+	display: inline-block;
+	color: blue;
+	text-decoration: underline;
+	cursor: pointer;
+}
+ul {
+	padding: 0;
+}
+body {
+	padding: 10px;
+}
+#download {
+	display: none;
+	padding-top: 30px;
+}
+td {
+	width: 80px;
+	height: 40px;
+	color: rgb(71, 71, 71);
+	font-size: 12px;
+	text-align: center;
+}
+.color {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+}
+.labels {
+	background: lightblue;
+}
+
+thead td {
+	color: rgb(111, 107, 107);
+	font-size: 12px;
+	text-align: center;
+}

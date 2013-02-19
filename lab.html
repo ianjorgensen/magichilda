@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  todo: 1. wrap this into a function that can add many canvas frames at once
+        2. get many images of the card with the frame
+        3. load the images using 1. funciton and start locating the wells
+        3.5 determine when we cannot find the well
+        4. get the color from the well.
+
+        -. get it 
+
+        build color curves for ldh and bili and hb
+
+        
+
+        get colors from color curves for some of the images mathias sent me
+
+        -. make the app auto focus on the center of the screen on short time intervals
+
+
+ -->
+  <head>
+    <meta charset="utf-8">
+    <title>lab</title>
+
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/canvasquery.js"></script>
+    <script src="/js/quant.js"></script>
+    <script src="/js/lab.js"></script>
+
+    <!-- styles -->
+    <style>
+    body {
+      padding: 0px !important;
+      margin: 0px !important;
+    }
+    .cs {
+      width: 20px;
+      height: 20px;
+    }
+    #error {
+      width: 20px;
+      background: green;
+      height: 20px;
+    }
+    </style>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io.connect();
+
+      socket.on('postimage', function (d) {
+        socket.disconnect();
+        socket.socket.reconnect();
+
+        $('canvas').remove();
+        $('.cs').remove();
+
+        loadImage(d);
+      });
+
+      var send = '';
+      var loadImage = function(d) {
+        image = new Image();
+
+        data = d;
+
+        image.onload = function() {
+          q = cq(image);
+
+          q.blur().blur().blur();
+
+          q.appendTo('#can');
+
+          canvas = $('canvas')[0];
+          context = canvas.getContext('2d');
+          
+          // Swedish method comapriason
+          //310, 150
+          var w = getPixelColor(context, image, (310 + data.points[1].x) - 90, (150 + data.points[1].y) - 20);
+          console.log(w);
+
+          whiteBalance(context, image, w);
+        };
+
+        image.src = data.image;
+      };
+
+      $(function() {
+//        start();
+
+        $('#error').click(function() {
+          socket.emit('dataready', { str: '-,-' });
+        });
+
+        $('#can').click(function(e) {
+          click(e, context, image);
+        });
+        
+        var click = function(e, context, image) {
+            var x = e.offsetX;
+            var y = e.offsetY;
+
+            var w = 10;
+
+            console.log(x,y);
+
+            var c = pallete(context, image, x - (w/2), y - (w/2), w, 3)[0];
+
+            $('<div class="cs" style="background:rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')"></div>').appendTo('body');
+
+            if (e.altKey) {
+              var b = c[2];
+
+              if(b > 170)b = 170; 
+              if(b < 90)b = 90;
+
+              var x = (b - 183) / -0.4938;
+
+              send += ',' + Math.round(x);
+
+              console.log(send);
+              socket.emit('dataready', { str: send });
+            } else {
+              var r = c[0];
+
+              if(r > 207)r=207;
+             // if(r < 122)r=122;
+
+              send = Math.round((207.93-r)/0.0967);
+
+              console.log(send);
+            }
+          };
+      });
+      
+      var start = function() {
+        var ddd = '{"points":[{"x":64,"y":8.5},{"x":64,"y":47},{"x":27.5,"y":46},{"x":33,"y":14}],"image":"/tmp/6852376e6c4128d2da66cb6c02ab3c65","subset":"/tmp/0500d94e8fa0c7eb1c17f784bc19089d"}';
+
+        ddd = JSON.parse(ddd);
+        $('canvas').remove();
+        $('.cs').remove();
+
+        loadImage(ddd);
+      };
+    </script>
+  </head>
+  <body>
+    <div id='can'></div>
+    <div id='error'></div>
+  </body>
+</html>
