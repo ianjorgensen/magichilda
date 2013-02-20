@@ -4,6 +4,7 @@ var express = require('express')
 	, server = require('http').createServer(app)
 	, io = require('socket.io').listen(server)
   , fs = require('fs')
+  , csv = require('./csv')
   , store = require('./store.js')
   , matrix = require('./matrix.js')
   ,	pixel = require('./pixel');  
@@ -14,6 +15,13 @@ io.set('log level', 1); // hide debug output
 app.engine('ejs', engine);
 app.set('views',__dirname + '/views');
 app.set('view engine', 'ejs');
+
+app.get('/csv/:property', function(request, response) {
+	response.setHeader('Content-disposition', 'attachment; filename=' + request.params.property);
+  response.setHeader('Content-type', 'text/csv');
+
+  response.end(csv(store.get(), request.params.property));
+});
 
 /* routes */
 app.get('/', function(request, response) {response.end('ok');});
