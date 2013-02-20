@@ -58,8 +58,6 @@ var whiteBalance = function(context, image) {
 };
 
 var save = function() {
-  
-
   var data = $('#key').val();
   data = data.trim();
   var r = data.split('\t');
