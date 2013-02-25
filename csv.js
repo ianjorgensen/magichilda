@@ -34,12 +34,14 @@ var csv = function(data, property) {
 		csv += (row.actual.hb || 'Nan').replace(/\,/g,'.');
 		csv += ',';
 
-		var leftc = 'Nan';
-		if(data.left) {
-			leftc = one("rgb(" + data.left.colors[0][0] + ',' +  data.left.colors[0][1] + ',' +  data.left.colors[0][2] + ')')[property]();
+		var leftc = '';
+
+		console.log('row.left', row.left);
+		if(row.left) {
+			leftc = one("rgb(" + row.left.colors[0][0] + ',' +  row.left.colors[0][1] + ',' +  row.left.colors[0][2] + ')')[property]();
 		}
 
-		csv += c;
+		csv += leftc;
 		csv += ',';
 
 		for(var i in row.data) {
