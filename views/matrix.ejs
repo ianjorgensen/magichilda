@@ -4,6 +4,14 @@
 
 <script>
 //var rows = JSON.parse('<%= JSON.stringify(rows)%>');
+var rm = function(key) {
+	console.log('key', key);
+
+	$.get('/matrix/remove/' + key, function(response) {
+		$('#row-' + key).remove();	
+  });
+};
+
 </script>
 
 <table cellpadding="0" cellspacing="0" class="c12 draggable">
@@ -17,6 +25,7 @@
 		<td>Actual Bili</td>
 		<td>Actual Hb Index</td>
 		<td>Actual Hb</td>
+		<td>left well</td>
 		<td>00:10</td>
 		<td>00:20</td>
 		<td>00:20</td>
@@ -49,7 +58,8 @@
 for(var i in rows) { 
 	var row = rows[i];
 %>
-	<tr>
+	<tr id='row-<%= row.key%>'>
+		<td class='remove'><a href='#' onclick='rm("<%= row.key %>")'>remove</a></td>
 		<td class='labels'><%= row.key %></td>
 		<td class='labels'><%= row.spiking.ldh %></td>
 		<td class='labels'><%= row.spiking.bili %></td>
@@ -59,6 +69,24 @@ for(var i in rows) {
 		<td class='labels'><%= row.actual.bili %></td>
 		<td class='labels'><%= row.actual['hb-index'] %></td>
 		<td class='labels'><%= row.actual.hb %></td>
+		
+		<!-- left -->
+		<%
+		var color = [0,0,0,0];
+		if(row.left && row.left.colors.length) {
+			color = row.left.colors[0];
+			color.push(255);
+		%>
+
+		<td class='color' style='background: rgba(<%= color[0] %>, <%= color[1] %>, <%= color[2] %>, <%= color[3] %>);'><img src="<%= row.left.path %>"></td>		
+		<%
+		} else {
+		%>
+		<td></td>
+		<%
+		}
+		%>
+		
 
 		<!--<td><img height="40" width="40" src="images/s/left-<%= i %>/left.jpg"></td>-->
 		<%

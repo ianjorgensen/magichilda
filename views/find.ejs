@@ -1,0 +1,12 @@
+<% layout('boilerplate') -%>
+
+<ul>
+<%
+for(var i in rows) { 
+	var row = rows[i];
+%>
+	<li><img src='<%= row.image%>'></li>
+<%
+}
+%>
+</ul>

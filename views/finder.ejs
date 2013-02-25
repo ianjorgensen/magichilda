@@ -1,0 +1,172 @@
+<% layout('boilerplate') -%>
+
+<script src="/js/lib/jquery.js"></script>
+<script src="/js/lib/canvasquery.js"></script>
+<script src="/js/lab.js"></script>
+<script>
+$(function() {
+  
+  var dist = function(color) {
+    var arr = [color.r, color.g, color.b];
+    var min = Math.min.apply(Math, arr);
+    var max = Math.max.apply(Math, arr);
+
+    return max - min;
+  };
+
+  var maxi = function(color) {
+    var arr = [color.r, color.g, color.b];
+    return Math.max.apply(Math, arr);
+  };
+
+  var mini = function(color) {
+    var arr = [color.r, color.g, color.b];
+    return Math.min.apply(Math, arr);
+  };
+
+  var rclose = function(n1, n2) {
+    var margin = 100;
+
+    if(n1 < n2 + margin && n1 > n2 - margin) {
+      return true;
+    }
+    return false;
+  };
+
+  var black = function(context, image, b) {
+    var imageData = context.getImageData(0, 0, image.width, image.height);
+
+    for(var x = 0; x < image.width; x++) {
+      for(var y = 0; y < image.height; y++) {
+        var index = (x + y * imageData.width) * 4;
+
+        var c = {
+          r: imageData.data[index+0],
+          g: imageData.data[index+1],
+          b: imageData.data[index+2]
+        };
+
+        //if(c.r > b.r && c.g > b.g && c.b > b.b && dist(c) > dist(b)) {
+
+        if(rclose(b.r,c.r) && rclose(b.g,c.g) && rclose(b.b,c.b)) {
+          //console.log('equal');
+          imageData.data[index+0] = 255;
+          imageData.data[index+1] = 0;
+          imageData.data[index+2] = 0; 
+        } else {
+          //console.log(imageData.data[index+0]);
+          //imageData.data[index+0] = 0;
+          //imageData.data[index+1] = 0;
+          //imageData.data[index+2] = 0; 
+        }
+
+      }
+    }
+    context.putImageData(imageData, 0, 0);
+  };
+
+  var loadImage = function(i,data) {
+    var w = 10;
+    var colors = [
+      "rgba(255,0,0,0.7)",
+      "rgba(0,255,0,0.7)",
+      "rgba(0,0,255,0.7)",
+      "rgba(0,255,255,0.7)",
+      "rgba(155,255,155,0.6)"
+    ];
+    var image = new Image();
+
+    image.onload = function() {
+      var _cq = cq(image);//.threshold(100);
+      var p = data.points[1];
+      var imageData = _cq.context.getImageData(0, 0, image.width, image.height);
+      var b = getPixelColor1(imageData, image, 310 + p.x, 150 + p.y);
+      var spacing = data.points[1].y - data.points[2].y;
+      var aligment =  data.points[1].x - data.points[2].x;
+      var multiplier = 3.55;
+      var ly = 150 + data.points[1].y - spacing/2 - 2.5;// - 10;
+      var lx = (310 + data.points[1].x) - spacing*multiplier;
+      var hit = false;   
+      var hits = 0;
+      var ert = 0.87;
+
+      black(_cq.context, image, b);
+
+      _cq.context.fillStyle = colors[1];
+   //   _cq.context.fillRect(310 + data.points[1].x - spacing*multiplier, 150 + data.points[1].y - spacing/2 - 2.5,spacing*multiplier,2);
+         
+      imageData = _cq.context.getImageData(0, 0, image.width, image.height);
+
+      for (var we=-3;we<3;we++) {
+        for (var i=0;i<13;i++) {
+          var farve = getPixelColor1(imageData, image, lx + i, ly + we);
+
+          if(farve.r == 255 && farve.g == 0 && farve.b == 0) {
+            hit = true;
+
+            //if(hit == 1) {
+            _cq.context.fillStyle = colors[4];
+            _cq.context.fillRect(lx + i, ly,10, 10);
+
+            var length = spacing* 2.2;
+            var _icq = cq(image);;
+
+            _icq.crop((lx + i) - spacing*ert, (ly - spacing) + length * 0.48,spacing*ert - 3, length * 0.48);
+            $(_icq.canvas).appendTo('#images');
+
+            $('<h1>'+spacing+ ' ' + we + ' ' + i + '</h1>').appendTo('#images');
+            //$('<h1>'+spacing+'</h1>').appendTo('#images');
+            _cq.crop((lx + i) - spacing*ert, ly - spacing,spacing*ert, length * 0.52);
+            
+
+            
+            i=130;
+            we=100;
+            //}
+          };
+        }
+      }
+
+      if(Math.abs(aligment) >= 2) {
+        _cq.context.fillStyle = colors[0];
+        _cq.context.fillRect(0,0,50,50);        
+      } else if(!hit) {
+        _cq.context.fillStyle = colors[0];
+        _cq.context.fillRect(0,50,50,50);        
+
+      } else {
+        _cq.context.fillStyle = colors[1];
+        _cq.context.fillRect(0,0,50,50);
+      }
+
+      for(var j in data.points) {
+        _cq.context.fillStyle = colors[j];
+        var p = data.points[j];
+        _cq.context.fillRect(310 + p.x - w/2, 150 + p.y - w/2,10,10);
+      }
+      
+      $(_cq.canvas).click(function(e) {console.log(e.offsetX,e.offsetY);});
+
+      $(_cq.canvas).attr('id',i).appendTo('#images');
+      $('<br>').appendTo('#images');
+      $('<br>').appendTo('#images');
+      $('<br>').appendTo('#images');
+      $('<br>').appendTo('#images');
+    };
+
+    image.src = data.image;
+  };
+
+  $.get('/degubStore', function(data) {
+    //console.log(data);
+    redata = data;
+    for(var i in data.rows) {
+      var row = data.rows[i];
+      //console.log(i,row);
+      loadImage(i,row);
+    }
+  })
+});
+</script>
+<div id='images'>
+</div>

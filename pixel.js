@@ -88,6 +88,7 @@ var crop = function(imagePath, croppedPath, x, y, width, height, callback) {
         fs.writeFile(__dirname +  croppedPath, buf, function() {
           callback(null, {
             path: croppedPath,
+            sourcePath: imagePath,
             colors: colors
           });
         }); 
@@ -98,8 +99,16 @@ var crop = function(imagePath, croppedPath, x, y, width, height, callback) {
 };
 exports.crop = crop;
 
+var left = function(path, key, x, y, l, callback) {
+    var outpath =  '/images/s/' + key + '/left.jpg';
+
+    crop('/' + path, outpath, x - l/2, y - l/2, l, l, callback); 
+};
+exports.cropLeft = left;
+
 var batch = function(folder, key, x, y, l, callback) {
   var paths = fs.readdirSync(__dirname + '/' + folder);
+
 
   common.step([
     function(next) {
@@ -107,8 +116,9 @@ var batch = function(folder, key, x, y, l, callback) {
     },
     function(next) {
       for(var i in paths) {
-        var filename = paths[i];
 
+        var filename = paths[i];
+        
         if (endsWith(filename, '.jpg')) {
           var path = '/' + folder + '/' + filename;
           var outpath =  '/images/s/' + key + '/' + i*10 + '.jpg';

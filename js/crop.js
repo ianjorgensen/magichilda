@@ -1,4 +1,5 @@
 var cropdata;
+var clickedImagePath;
 
 var format = function (str, col) {
   col = typeof col === 'object' ? col : Array.prototype.slice.call(arguments, 1);
@@ -10,6 +11,7 @@ var format = function (str, col) {
 
 var clickifyImages = function(fn) {
 	$('img').click(function() {
+    clickedImagePath = $(this).attr('src');
     $('#tip').show();
 		fn($(this).attr('src'));
 	})
@@ -62,7 +64,6 @@ var save = function() {
   data = data.trim();
   var r = data.split('\t');
 
-
   var info = {
     key: r[0],
     spiking : {
@@ -79,12 +80,30 @@ var save = function() {
     }
   };
 
-  info.data = cropdata;
+  if ($('#left').is(':checked')) {
+    
+    info.data = [];
+    info.left = cropdata;
 
-  console.log('saving data...');
-  $.get(window.location.href + '/save?info=' + JSON.stringify(info), function(response) {
-    console.log('got save data back', response);
-  });
+    if(info.left) {
+      console.log('saving left well data...');
+      $.get(window.location.href + '/left/save?info=' + JSON.stringify(info), function(response) {
+        alert('saved left well');
+      });    
+    } else {
+      alert('you need to crop the well before saving');
+    }
+  } else {
+    info.data = cropdata;
+
+    console.log('saving right well data...');
+    $.get(window.location.href + '/save?info=' + JSON.stringify(info), function(response) {
+      alert('saved right well');
+    });  
+  }
+  
+
+  
 };
 
 var click = function(e, context, image) {
@@ -104,21 +123,35 @@ var click = function(e, context, image) {
     whiteBalance(context, image);
   } else {
     var key = $('#key').val();
-    $.get(window.location.href + '/' + key + '?x=' +  x + '&y=' + y, function(response) {
+    var data = $('#key').val();
+    data = data.trim();
+    var r = data.split('\t');
+    var key = r[0];
 
-      // array of color and image name.
-      cropdata = response;
+    if ($('#left').is(':checked') && clickedImagePath) {
+      $.get(window.location.href + '/' + clickedImagePath.split('/')[3] + '/' + key + '/left/' + '?x=' +  x + '&y=' + y, function(response) {
+        cropdata = response;
+        console.log(cropdata);
 
-      $('#cuts').html('');
-      setTimeout(function() {
-        for(var i in images) {
-          if (i == 0) {
-            continue;
+        $('#cuts').html('');
+        setTimeout(function() {
+          $('#cuts').append('<li><img src="/images/s/' + key + '/left.jpg"></li>');
+        }, 300);
+      });
+    } else {
+      $.get(window.location.href + '/' + key + '?x=' +  x + '&y=' + y, function(response) {
+        console.log(response);
+        cropdata = response;
+
+        $('#cuts').html('');
+        setTimeout(function() {
+          for(var i in images) {
+            $('#cuts').append('<li><img src="/images/s/' + key + '/' + i*10 + '.jpg"></li>');
           }
-          $('#cuts').append('<li><img src="/images/s/' + key + '/' + i*10 + '.jpg"></li>');
-        }
-      }, 300);
-    });
+        }, 300);
+      });
+    }
+    
   }
 };
 
